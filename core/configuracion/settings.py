@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'apps.posts',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.posts.context_processors.contexto_base',
             ],
         },
     },
@@ -116,6 +118,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
 
+# if DEBUG:
+#      STATICFILES_DIRS = BASE_DIR / 'static',
+# else:
+#      STATIC_ROOT = BASE_DIR / 'static'
 
 
 # Default primary key field type
