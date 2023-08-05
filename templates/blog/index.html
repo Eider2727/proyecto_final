@@ -1,4 +1,6 @@
 {% load static %}
+<script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+<script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
 
 <!doctype html>
 <html lang="es">
@@ -10,23 +12,53 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta name="description" content="">
   <title>Blog Tecno</title>
-  <link href={% static 'blog/css/bootstrap.min.css' %} rel="stylesheet">
+  <link href= {% static 'blog/css/bootstrap.min.css' %} rel="stylesheet">
   <!-- Custom styles for this template -->
-  <link href={% static 'blog/css/blog.css' %} rel="stylesheet">
+  <link href= {% static 'blog/css/blog.css' %} rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 
 <body>
   <section class="container">
-    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-      <a href={% url 'inicio' %} class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-        <img class="bi me-2" width="40" height="32" src={% static 'blog/img/logo-tecno.png' %}> 
-        <span class="fs-4">Blog Tecno</span>
-      </a>
-      <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown"
-        aria-expanded="false">
-        <img src={% static 'blog/img/user.jpg' %} alt="mdo" width="32" height="32" class="rounded-circle">
-      </a>
+
+    <header class="d-flex flex-wrap justify-content-between py-3 mb-4 border-bottom">
+      
+      <section class="dropdown">
+        <a href= {% url 'inicio' %} class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+          <img class="bi me-2" width="40" height="32" src= {% static 'blog/img/logo-tecno.png' %}>
+          <span class="fs-4">Blog Tecno</span>
+        </a>
+      </section>
+
+      {%if request.user.is_authenticated %}
+
+        <section class="flex-shrink-0 dropdown">
+          <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown"
+            aria-expanded="false">
+          <span>Hola @{{ request.user.username | title }}</span>
+          </a>
+          <ul class="dropdown-menu text-small shadow">
+            {% if request.user.is_staff %}
+              <li><a class="dropdown-item" href={% url 'crear_articulo' %}>Crear Artículo</a></li>
+            {% endif %}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'logout' %}">Salir</a></li>
+          </ul>
+        </section>
+      {% else %}
+        <section class="flex-shrink-0 dropdown">
+          <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <span>MENU</span>
+          </a>
+          <ul class="dropdown-menu text-small shadow">
+              <li><a class="dropdown-item" href={% url 'login' %}>Login</a></li>
+              <li><a class="dropdown-item" href={% url 'signup' %}>Registrarse</a></li>
+          </ul>
+        </section>
+
+      {% endif %}
+      
     </header>
 
     <main class="mt-2">
@@ -35,11 +67,12 @@
       <section class="row g-5">
         <!-- TODOS LOS POSTS -->
         <section class="col-md-9">
+
           {% block contenido %}
           
           
-          
           {% endblock contenido %}
+
         </section>
 
         <!-- ASIDE -->
@@ -48,36 +81,35 @@
 
             <article class="p-4 mb-3 bg-light rounded">
               <h4 class="fst-italic text-center">Acerca de</h4>
-              <p class="mb-0 text-justify">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Vitae totam sit
-                unde
-                laboriosam
-                facere, numquam fuga similique hic, officia ratione fugiat, exercitationem deleniti velit inventore
-                tenetur earum distinctio quasi eveniet.</p>
+              <p class="mb-0 text-justify">{{ acerca }}</p>
             </article>
 
             <article class="p-4 text-center">
               <h4 class="fst-italic">Categorías</h4>
               <ol class="list-unstyled mb-0">
-                <li><a class=text-decoration-none href={% url 'categoria' %}>Categoría #</a></li>
-                <li><a class=text-decoration-none href={% url 'categoria' %}>Categoría #</a></li>
+                {% for categoria in categorias %}
+                  <li><a class=text-decoration-none href= {% url 'categoria' categoria_slug=categoria.slug%} >{{ categoria }}</a></li>
+                {% endfor %}
               </ol>
             </article>
 
             <article class="p-4 text-center">
               <h4 class="fst-italic">Archivos</h4>
               <ol class="list-unstyled mb-0">
-                <li><a class=text-decoration-none href={% url 'archivo' %}>Julio 2023</a></li>
-                <li><a class=text-decoration-none href={% url 'archivo' %}>Junio 2023</a></li>
-                <li><a class=text-decoration-none href={% url 'archivo' %}>Mayo 2023</a></li>
+                {% for archivo in archivos %}
+                  <li><a class=text-decoration-none href= {% url 'archivo' year=archivo.fecha.year month=archivo.fecha.month %} >{{ archivo.fecha|date:'F Y'|capfirst }}</a></li>
+                {% endfor %}
               </ol>
             </article>
 
             <article class="p-4 text-center">
               <h4 class="fst-italic">Nuestras redes</h4>
               <ol class="list-unstyled">
-                <li><a class=text-decoration-none href="#" target="_blank"><i class="bi bi-github"></i> GitHub</a></li>
-                <li><a class=text-decoration-none href="#" target="_blank"><i class="bi bi-linkedin"></i> Linkedin</a>
-                </li>
+                {% for red in redes %}
+                 {% if red.url %}
+                    <li><a class='text-decoration-none' href={{ red.url }} target="_blank"><i class="{{red.icono}}"></i>  {{red}}</a></li>
+                  {% endif %}
+                {% endfor %}
               </ol>
             </article>
 
@@ -85,9 +117,10 @@
         </aside>
       </section>
     </main>
+    <script src={% static 'blog/js/bootstrap.bundle.min.js' %}></script>
 
     <footer class="blog-footer">
-      <p>Aldana Eiden todos los derechos reservados ©</p>
+      <p>Miguel Puente todos los derechos reservados ©</p>
       <p><a href="#"><i class="bi bi-arrow-bar-up text-dark"></i></a></p>
     </footer>
   </section>

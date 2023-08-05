@@ -126,10 +126,10 @@ class Articulo(models.Model):
     titulo = models.CharField(
         max_length=250, unique=True, verbose_name='Título')
     slug = models.SlugField()
-    bajada = models.CharField(max_length=150, verbose_name='Bajada')
+    bajada = models.CharField(max_length=600, verbose_name='Bajada')
     contenido = RichTextField(verbose_name='Contenido')
     imagen = models.ImageField(
-        upload_to='blog/articulos/imagenes', null=True, blank=True, verbose_name='Imagen')
+        upload_to='media/blog/articulos/imagenes', null=True, blank=True, verbose_name='imagen')
     publicado = models.BooleanField(default=False, verbose_name='Publicado')
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL,
                                   related_name='get_articulos', null=True, blank=True, verbose_name='Categoría')
@@ -149,7 +149,8 @@ class Articulo(models.Model):
     def delete(self, using=None, keep_parents=False):
         self.imagen.delete(self.imagen.name)
         return super().delete()
-
+    
+    slug = models.SlugField(unique=True, blank=True)
     def save(self, *args, **kwargs):
         self.slug = slugify(self.titulo)
         super(Articulo, self).save(*args, **kwargs)
